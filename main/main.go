@@ -1,7 +1,15 @@
 package main
 
-import "models"
+import (
+	"fmt"
+	"models"
+)
 
 func main() {
-	models.GenerateBinaryTree()
+	var treeParams = models.TreeParams{
+		TreeIndex:        2,
+		PowerOfTreeIndex: 3,
+	}
+	tree := models.GenerateBinaryTree(treeParams)
+	fmt.Printf("Root hash:%v", tree.RootHash)
 }
