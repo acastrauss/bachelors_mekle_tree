@@ -10,6 +10,6 @@ func main() {
 		TreeIndex:        2,
 		PowerOfTreeIndex: 3,
 	}
-	tree := models.GenerateBinaryTree(treeParams)
+	tree := models.GenerateMerkleTree(treeParams)
 	fmt.Printf("Root hash:%v", tree.RootHash)
 }

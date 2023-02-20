@@ -10,7 +10,7 @@ var keccakHasher = keccak256.New()
 
 const STRING_VALUE_LENGTH = 50
 
-func GenerateBinaryTree(treeParams TreeParams) MerkleTree {
+func GenerateMerkleTree(treeParams TreeParams) MerkleTree {
 	nofLeafNodes := getNumberOfLeafNodes(treeParams)
 	currentLevelNofNodes := nofLeafNodes
 

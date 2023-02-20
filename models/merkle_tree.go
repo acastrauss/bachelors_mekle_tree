@@ -1,6 +1,9 @@
 package models
 
-import "math"
+import (
+	"errors"
+	"math"
+)
 
 type TreeParams struct {
 	TreeIndex        uint
@@ -47,11 +50,17 @@ func buildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
 	}
 }
 
-func assignParentToChildren(parent *TreeNode, children []*TreeNode) {
+func assignParentToChildren(parent *TreeNode, children []*TreeNode) error {
+	if parent == nil {
+		return errors.New("parent is nil")
+	}
+
 	for _, c := range children {
 		c.Parent = parent
 	}
 	parent.Children = children
+
+	return nil
 }
 
 type MerkleTree struct {
