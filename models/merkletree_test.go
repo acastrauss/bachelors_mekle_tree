@@ -27,8 +27,6 @@ func TestGetNumberOfLeafNodes(t *testing.T) {
 	}
 }
 
-const KECCAK_SHA_LENGTH = 256
-
 func genRandomTreeNode(r *rand.Rand) *TreeNode {
 	treeNode := &TreeNode{
 		Parent:   nil,

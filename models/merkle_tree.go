@@ -34,11 +34,7 @@ func buildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
 		// leaf node
 		nodeHash = Hash{Value: keccakHasher.Hash([]byte(RandStringRunes(stringValueLength)))}
 	} else {
-		var concatenatedhashes []byte
-		for _, ch := range childrenHashes {
-			concatenatedhashes = append(concatenatedhashes, ch.Value...)
-		}
-		nodeHash = Hash{Value: keccakHasher.Hash(concatenatedhashes)}
+		nodeHash = genParentHashFromChildrenHashes(childrenHashes)
 	}
 
 	TreeNodeId += 1
@@ -48,6 +44,14 @@ func buildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
 		NodeHash: nodeHash,
 		NodeId:   TreeNodeId,
 	}
+}
+
+func genParentHashFromChildrenHashes(childrenHashes []Hash) Hash {
+	var concatenatedhashes []byte
+	for _, ch := range childrenHashes {
+		concatenatedhashes = append(concatenatedhashes, ch.Value...)
+	}
+	return Hash{Value: keccakHasher.Hash(concatenatedhashes)}
 }
 
 func assignParentToChildren(parent *TreeNode, children []*TreeNode) error {

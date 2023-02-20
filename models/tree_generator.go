@@ -9,6 +9,7 @@ import (
 var keccakHasher = keccak256.New()
 
 const STRING_VALUE_LENGTH = 50
+const KECCAK_SHA_LENGTH = 32
 
 func GenerateMerkleTree(treeParams TreeParams) MerkleTree {
 	nofLeafNodes := getNumberOfLeafNodes(treeParams)
