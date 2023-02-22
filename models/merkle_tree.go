@@ -16,6 +16,11 @@ func getNumberOfLeafNodes(treeParams TreeParams) int {
 	return int(math.Pow(float64(treeParams.TreeIndex), float64(treeParams.PowerOfTreeIndex)))
 }
 
+func getTotalNumberOfNodes(treeParams TreeParams) int {
+	return int(
+		(math.Pow(float64(treeParams.TreeIndex), float64(treeParams.PowerOfTreeIndex+1)) - 1) / (float64(treeParams.TreeIndex) - 1))
+}
+
 type Hash struct {
 	Value []byte
 }
