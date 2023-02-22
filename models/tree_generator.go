@@ -2,14 +2,7 @@ package models
 
 import (
 	"math/rand"
-
-	"github.com/wealdtech/go-merkletree/keccak256"
 )
-
-var keccakHasher = keccak256.New()
-
-const STRING_VALUE_LENGTH = 50
-const KECCAK_SHA_LENGTH = 32
 
 func GenerateMerkleTree(treeParams TreeParams) MerkleTree {
 	nofLeafNodes := getNumberOfLeafNodes(treeParams)
@@ -21,7 +14,7 @@ func GenerateMerkleTree(treeParams TreeParams) MerkleTree {
 		// generate nodes for current level
 		if len(prevLevelNodes) == 0 {
 			// leafs
-			prevLevelNodes = generateLeafNodes(currentLevelNofNodes, STRING_VALUE_LENGTH)
+			prevLevelNodes = generateLeafNodes(currentLevelNofNodes)
 		} else {
 			var currentLevelNodes []TreeNode
 
@@ -41,11 +34,11 @@ func GenerateMerkleTree(treeParams TreeParams) MerkleTree {
 	}
 }
 
-func generateLeafNodes(nOfLeafNodes int, stringValueLength int) []TreeNode {
+func generateLeafNodes(nOfLeafNodes int) []TreeNode {
 	var emptyHashes []Hash
 	var leafNodes []TreeNode
 	for i := 0; i < int(nOfLeafNodes); i++ {
-		leafNodes = append(leafNodes, buildMerkleNode(emptyHashes, stringValueLength))
+		leafNodes = append(leafNodes, buildMerkleNode(emptyHashes, STRING_VALUE_LENGTH))
 	}
 	return leafNodes
 }
@@ -59,14 +52,15 @@ func generateParentOfChildren(treeParams TreeParams, availableChildren *[]TreeNo
 		childrenHashes = append(childrenHashes, oneChild.NodeHash)
 	}
 	parent := buildMerkleNode(childrenHashes, STRING_VALUE_LENGTH)
+
 	assignParentToChildren(&parent, childrenOfCurrentNode)
 	return parent
 }
 
 func getChildFromAvailableChildren(availableChildren *[]TreeNode) *TreeNode {
-	oneChild, indx := getRandomNodeFromLevel(*availableChildren)
-	*availableChildren = removeFromNodeLevelAtIndex(*availableChildren, indx)
-	return oneChild
+	oneChild := (*availableChildren)[0]
+	*availableChildren = removeFromNodeLevelAtIndex(*availableChildren, 0)
+	return &oneChild
 }
 
 func getRandomNodeFromLevel(nodesAtLevel []TreeNode) (*TreeNode, int) {

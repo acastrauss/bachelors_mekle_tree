@@ -8,7 +8,7 @@ import (
 	"testing/quick"
 )
 
-func genTreeParamsForTest(args []reflect.Value, r *rand.Rand) {
+func genTreeParamsTestData(args []reflect.Value, r *rand.Rand) {
 	treeParams := &TreeParams{
 		TreeIndex:        uint(r.Uint32()),
 		PowerOfTreeIndex: uint(r.Uint32()),
@@ -22,7 +22,7 @@ func TestGetNumberOfLeafNodes(t *testing.T) {
 		excpeted := int(math.Pow(float64(treeParams.TreeIndex), float64(treeParams.PowerOfTreeIndex)))
 		return actual == excpeted
 	}
-	if err := quick.Check(f1, &quick.Config{MaxCount: 1000, Values: genTreeParamsForTest}); err != nil {
+	if err := quick.Check(f1, &quick.Config{MaxCount: 1000, Values: genTreeParamsTestData}); err != nil {
 		t.Error(err)
 	}
 }
@@ -37,7 +37,7 @@ func genRandomTreeNode(r *rand.Rand) *TreeNode {
 	return treeNode
 }
 
-func genTreeNodeForAssignTest(args []reflect.Value, r *rand.Rand) {
+func genTreeNodeForAssignTestData(args []reflect.Value, r *rand.Rand) {
 	args[0] = reflect.ValueOf(genRandomTreeNode(r))
 	children := make([]*TreeNode, 0)
 	nofChildren := r.Intn(10)
@@ -62,12 +62,12 @@ func TestAssignParentToChildren(t *testing.T) {
 		retval = retval && (reflect.DeepEqual(parent.Children, children))
 		return retval
 	}
-	if err := quick.Check(f1, &quick.Config{MaxCount: 1000, Values: genTreeNodeForAssignTest}); err != nil {
+	if err := quick.Check(f1, &quick.Config{MaxCount: 1000, Values: genTreeNodeForAssignTestData}); err != nil {
 		t.Error(err)
 	}
 }
 
-func genBuildMerkleNodeParams(args []reflect.Value, r *rand.Rand) {
+func genBuildMerkleNodeTestData(args []reflect.Value, r *rand.Rand) {
 	nofChildrenHashes := r.Intn(10)
 	childrenHashes := make([]Hash, 0)
 	for i := 0; i < nofChildrenHashes; i++ {
@@ -92,7 +92,7 @@ func TestBuildMerkleNode(t *testing.T) {
 
 		return reflect.DeepEqual(actualNode.NodeHash.Value, excpetedHash.Value)
 	}
-	if err := quick.Check(f1, &quick.Config{MaxCount: 1000, Values: genBuildMerkleNodeParams}); err != nil {
+	if err := quick.Check(f1, &quick.Config{MaxCount: 1000, Values: genBuildMerkleNodeTestData}); err != nil {
 		t.Error(err)
 	}
 }

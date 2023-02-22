@@ -3,6 +3,8 @@ package models
 import (
 	"errors"
 	"math"
+
+	"github.com/wealdtech/go-merkletree/keccak256"
 )
 
 type TreeParams struct {
@@ -18,6 +20,25 @@ type Hash struct {
 	Value []byte
 }
 
+func AreHashesEqual(h1 Hash, h2 Hash) bool {
+	if (h1.Value == nil && h2.Value != nil) || (h1.Value != nil && h2.Value == nil) {
+		return false
+	}
+	if h1.Value == nil && h2.Value == nil {
+		return true
+	}
+	if len(h1.Value) != len(h2.Value) {
+		return false
+	}
+
+	for i := 0; i < len(h1.Value) && i < len(h2.Value); i++ {
+		if h1.Value[i] != h2.Value[i] {
+			return false
+		}
+	}
+	return true
+}
+
 type TreeNode struct {
 	Parent   *TreeNode
 	Children []*TreeNode
@@ -27,6 +48,11 @@ type TreeNode struct {
 
 var TreeNodeId = 0
 
+var keccakHasher = keccak256.New()
+
+const STRING_VALUE_LENGTH = 50
+const KECCAK_SHA_LENGTH = 32
+
 func buildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
 	var nodeHash Hash
 	isLeaf := len(childrenHashes) == 0
@@ -35,8 +61,8 @@ func buildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
 		nodeHash = Hash{Value: keccakHasher.Hash([]byte(RandStringRunes(stringValueLength)))}
 	} else {
 		nodeHash = genParentHashFromChildrenHashes(childrenHashes)
-	}
 
+	}
 	TreeNodeId += 1
 
 	return TreeNode{
@@ -47,10 +73,11 @@ func buildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
 }
 
 func genParentHashFromChildrenHashes(childrenHashes []Hash) Hash {
-	var concatenatedhashes []byte
+	concatenatedhashes := make([]byte, 0)
 	for _, ch := range childrenHashes {
 		concatenatedhashes = append(concatenatedhashes, ch.Value...)
 	}
+
 	return Hash{Value: keccakHasher.Hash(concatenatedhashes)}
 }
 
