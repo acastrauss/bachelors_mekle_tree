@@ -7,8 +7,8 @@ import (
 
 func main() {
 	var treeParams = models.TreeParams{
-		TreeIndex:        2,
-		PowerOfTreeIndex: 3,
+		TreeIndex:        3,
+		PowerOfTreeIndex: 4,
 	}
 	tree := models.GenerateMerkleTree(treeParams)
 	fmt.Printf("Root hash:%v\n", tree.RootHash)

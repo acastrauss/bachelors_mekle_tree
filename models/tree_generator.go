@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"math/rand"
 )
 
@@ -25,7 +26,7 @@ func GenerateMerkleTree(treeParams TreeParams) MerkleTree {
 
 			prevLevelNodes = currentLevelNodes
 		}
-		currentLevelNofNodes = int(currentLevelNofNodes / 2)
+		currentLevelNofNodes = int(currentLevelNofNodes / int(treeParams.TreeIndex))
 	}
 
 	return MerkleTree{
@@ -58,6 +59,10 @@ func generateParentOfChildren(treeParams TreeParams, availableChildren *[]TreeNo
 }
 
 func getChildFromAvailableChildren(availableChildren *[]TreeNode) *TreeNode {
+	if len(*availableChildren) == 0 {
+		fmt.Println()
+	}
+
 	oneChild := (*availableChildren)[0]
 	*availableChildren = removeFromNodeLevelAtIndex(*availableChildren, 0)
 	return &oneChild
