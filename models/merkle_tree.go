@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"math"
+	"math/rand"
 
 	"github.com/wealdtech/go-merkletree/keccak256"
 )
@@ -12,11 +13,11 @@ type TreeParams struct {
 	PowerOfTreeIndex uint
 }
 
-func getNumberOfLeafNodes(treeParams TreeParams) int {
+func GetNumberOfLeafNodes(treeParams TreeParams) int {
 	return int(math.Pow(float64(treeParams.TreeIndex), float64(treeParams.PowerOfTreeIndex)))
 }
 
-func getTotalNumberOfNodes(treeParams TreeParams) int {
+func GetTotalNumberOfNodes(treeParams TreeParams) int {
 	return int(
 		(math.Pow(float64(treeParams.TreeIndex), float64(treeParams.PowerOfTreeIndex+1)) - 1) / (float64(treeParams.TreeIndex) - 1))
 }
@@ -58,14 +59,14 @@ var keccakHasher = keccak256.New()
 const STRING_VALUE_LENGTH = 50
 const KECCAK_SHA_LENGTH = 32
 
-func buildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
+func BuildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
 	var nodeHash Hash
 	isLeaf := len(childrenHashes) == 0
 	if isLeaf {
 		// leaf node
 		nodeHash = Hash{Value: keccakHasher.Hash([]byte(RandStringRunes(stringValueLength)))}
 	} else {
-		nodeHash = genParentHashFromChildrenHashes(childrenHashes)
+		nodeHash = GenParentHashFromChildrenHashes(childrenHashes)
 
 	}
 	TreeNodeId += 1
@@ -77,7 +78,7 @@ func buildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
 	}
 }
 
-func genParentHashFromChildrenHashes(childrenHashes []Hash) Hash {
+func GenParentHashFromChildrenHashes(childrenHashes []Hash) Hash {
 	concatenatedhashes := make([]byte, 0)
 	for _, ch := range childrenHashes {
 		concatenatedhashes = append(concatenatedhashes, ch.Value...)
@@ -86,7 +87,7 @@ func genParentHashFromChildrenHashes(childrenHashes []Hash) Hash {
 	return Hash{Value: keccakHasher.Hash(concatenatedhashes)}
 }
 
-func assignParentToChildren(parent *TreeNode, children []*TreeNode) error {
+func AssignParentToChildren(parent *TreeNode, children []*TreeNode) error {
 	if parent == nil {
 		return errors.New("parent is nil")
 	}
@@ -97,6 +98,16 @@ func assignParentToChildren(parent *TreeNode, children []*TreeNode) error {
 	parent.Children = children
 
 	return nil
+}
+
+func GenRandomTreeNode(r *rand.Rand) *TreeNode {
+	treeNode := &TreeNode{
+		Parent:   nil,
+		Children: make([]*TreeNode, 0),
+		NodeHash: Hash{Value: make([]byte, KECCAK_SHA_LENGTH)},
+		NodeId:   int(r.Int()),
+	}
+	return treeNode
 }
 
 type MerkleTree struct {

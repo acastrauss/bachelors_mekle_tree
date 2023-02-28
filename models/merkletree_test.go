@@ -18,7 +18,7 @@ func genTreeParamsTestData(args []reflect.Value, r *rand.Rand) {
 
 func TestGetNumberOfLeafNodes(t *testing.T) {
 	f1 := func(treeParams *TreeParams) bool {
-		actual := getNumberOfLeafNodes(*treeParams)
+		actual := GetNumberOfLeafNodes(*treeParams)
 		excpeted := int(math.Pow(float64(treeParams.TreeIndex), float64(treeParams.PowerOfTreeIndex)))
 		return actual == excpeted
 	}
@@ -27,23 +27,13 @@ func TestGetNumberOfLeafNodes(t *testing.T) {
 	}
 }
 
-func genRandomTreeNode(r *rand.Rand) *TreeNode {
-	treeNode := &TreeNode{
-		Parent:   nil,
-		Children: make([]*TreeNode, 0),
-		NodeHash: Hash{Value: make([]byte, KECCAK_SHA_LENGTH)},
-		NodeId:   int(r.Int()),
-	}
-	return treeNode
-}
-
 func genTreeNodeForAssignTestData(args []reflect.Value, r *rand.Rand) {
-	args[0] = reflect.ValueOf(genRandomTreeNode(r))
+	args[0] = reflect.ValueOf(GenRandomTreeNode(r))
 	children := make([]*TreeNode, 0)
 	nofChildren := r.Intn(10)
 
 	for i := 0; i < nofChildren; i++ {
-		children = append(children, genRandomTreeNode(r))
+		children = append(children, GenRandomTreeNode(r))
 	}
 
 	args[1] = reflect.ValueOf(children)
@@ -51,7 +41,7 @@ func genTreeNodeForAssignTestData(args []reflect.Value, r *rand.Rand) {
 
 func TestAssignParentToChildren(t *testing.T) {
 	f1 := func(parent *TreeNode, children []*TreeNode) bool {
-		err := assignParentToChildren(parent, children)
+		err := AssignParentToChildren(parent, children)
 		if err != nil {
 			return true
 		}
@@ -83,7 +73,7 @@ func TestBuildMerkleNode(t *testing.T) {
 			return true
 		}
 
-		actualNode := buildMerkleNode(childrenHashes, stringValueLength)
+		actualNode := BuildMerkleNode(childrenHashes, stringValueLength)
 		var concatenatedhashes []byte
 		for _, ch := range childrenHashes {
 			concatenatedhashes = append(concatenatedhashes, ch.Value...)

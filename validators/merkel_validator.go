@@ -1,43 +1,47 @@
-package models
+package validators
 
-func IsMerkleTreeValid(tree *MerkleTree) bool {
+import (
+	"models"
+)
+
+func IsMerkleTreeValid(tree *models.MerkleTree) bool {
 	return compareParentHashToChildrenHashes(tree.Root)
 }
 
-func compareParentHashToChildrenHashes(parent *TreeNode) bool {
+func compareParentHashToChildrenHashes(parent *models.TreeNode) bool {
 	if len(parent.Children) == 0 { // leaf node
 		return true
 	} else {
 		retval := true
-		childrenHashes := make([]Hash, 0)
+		childrenHashes := make([]models.Hash, 0)
 		for _, c := range parent.Children {
 			childrenHashes = append(childrenHashes, c.NodeHash)
 			retval = retval && compareParentHashToChildrenHashes(c)
 		}
 
-		expectedHash := genParentHashFromChildrenHashes(childrenHashes)
-		retval = retval && AreHashesEqual(expectedHash, parent.NodeHash)
+		expectedHash := models.GenParentHashFromChildrenHashes(childrenHashes)
+		retval = retval && models.AreHashesEqual(expectedHash, parent.NodeHash)
 		return retval
 	}
 }
 
-func InvalidateTree(tree *MerkleTree) {
+func InvalidateTree(tree *models.MerkleTree) {
 	currentNode := tree.Root
 	for len(currentNode.Children) > 0 {
 		currentNode = currentNode.Children[0]
 	}
-	currentNode.NodeHash = Hash{Value: make([]byte, KECCAK_SHA_LENGTH)}
+	currentNode.NodeHash = models.Hash{Value: make([]byte, models.KECCAK_SHA_LENGTH)}
 }
 
-func AreMerkleTreesNodesDifferent(tree *MerkleTree, treeParams TreeParams) bool {
-	expectedNofNodes := getTotalNumberOfNodes(treeParams)
+func AreMerkleTreesNodesDifferent(tree *models.MerkleTree, treeParams models.TreeParams) bool {
+	expectedNofNodes := models.GetTotalNumberOfNodes(treeParams)
 	idsInTree := getSubtreeIds(tree.Root)
 	idsInTree = removeDuplicates(idsInTree)
 
 	return expectedNofNodes == len(idsInTree)
 }
 
-func getSubtreeIds(root *TreeNode) []int {
+func getSubtreeIds(root *models.TreeNode) []int {
 	retval := make([]int, 0)
 
 	if len(root.Children) == 0 {

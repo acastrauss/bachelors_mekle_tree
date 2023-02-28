@@ -1,25 +1,26 @@
-package models
+package generators
 
 import (
 	"math/rand"
+	"models"
 	"reflect"
 	"testing"
 	"testing/quick"
 )
 
 func genDataForRemoveNodeLevelAtIndex(args []reflect.Value, r *rand.Rand) {
-	nodesAtLevel := make([]TreeNode, 0)
+	nodesAtLevel := make([]models.TreeNode, 0)
 	nofNodes := r.Intn(10) + 1
 
 	for i := 0; i < nofNodes; i++ {
-		nodesAtLevel = append(nodesAtLevel, *genRandomTreeNode(r))
+		nodesAtLevel = append(nodesAtLevel, *models.GenRandomTreeNode(r))
 	}
 	args[0] = reflect.ValueOf(nodesAtLevel)
 	args[1] = reflect.ValueOf(r.Intn(len(nodesAtLevel)))
 }
 
 func TestRemoveFromNodeLevelAtIndex(t *testing.T) {
-	f1 := func(level []TreeNode, indx int) bool {
+	f1 := func(level []models.TreeNode, indx int) bool {
 		nodeAtIndx := level[indx]
 		lenBeforeRemoving := len(level)
 		level = removeFromNodeLevelAtIndex(level, indx)

@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"generators"
 	"models"
+	"validators"
 )
 
 func main() {
@@ -10,11 +12,11 @@ func main() {
 		TreeIndex:        3,
 		PowerOfTreeIndex: 3,
 	}
-	tree := models.GenerateMerkleTree(treeParams)
+	tree := generators.GenerateMerkleTree(treeParams)
 	fmt.Printf("Root hash:%v\n", tree.RootHash)
-	fmt.Printf("Is tree valid :%v\n", models.IsMerkleTreeValid(&tree))
-	models.InvalidateTree(&tree)
-	fmt.Printf("Is tree valid :%v\n", models.IsMerkleTreeValid(&tree))
+	fmt.Printf("Is tree valid :%v\n", validators.IsMerkleTreeValid(&tree))
+	validators.InvalidateTree(&tree)
+	fmt.Printf("Is tree valid :%v\n", validators.IsMerkleTreeValid(&tree))
 
-	fmt.Printf("Are all nodes different: %v", models.AreMerkleTreesNodesDifferent(&tree, treeParams))
+	fmt.Printf("Are all nodes different: %v", validators.AreMerkleTreesNodesDifferent(&tree, treeParams))
 }
