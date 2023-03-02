@@ -1,13 +1,11 @@
 package generators
 
 import (
-	"fmt"
-	"math/rand"
 	"models"
 )
 
 func GenerateMerkleTree(treeParams models.TreeParams) models.MerkleTree {
-	nofLeafNodes := models.GetNumberOfLeafNodes(treeParams)
+	nofLeafNodes := treeParams.GetNumberOfLeafNodes()
 	currentLevelNofNodes := nofLeafNodes
 
 	var prevLevelNodes []models.TreeNode
@@ -37,41 +35,27 @@ func GenerateMerkleTree(treeParams models.TreeParams) models.MerkleTree {
 }
 
 func generateLeafNodes(nOfLeafNodes int) []models.TreeNode {
-	var emptyHashes []models.Hash
 	var leafNodes []models.TreeNode
 	for i := 0; i < int(nOfLeafNodes); i++ {
-		leafNodes = append(leafNodes, models.BuildMerkleNode(emptyHashes, models.STRING_VALUE_LENGTH))
+		leafNodes = append(leafNodes, models.BuildLeafNode())
 	}
 	return leafNodes
 }
 
 func generateParentOfChildren(treeParams models.TreeParams, availableChildren *[]models.TreeNode) models.TreeNode {
 	var childrenOfCurrentNode []*models.TreeNode
-	var childrenHashes []models.Hash
 	for j := 0; j < (int(treeParams.TreeIndex)); j++ {
 		oneChild := getChildFromAvailableChildren(availableChildren)
 		childrenOfCurrentNode = append(childrenOfCurrentNode, oneChild)
-		childrenHashes = append(childrenHashes, oneChild.NodeHash)
 	}
-	parent := models.BuildMerkleNode(childrenHashes, models.STRING_VALUE_LENGTH)
-
-	models.AssignParentToChildren(&parent, childrenOfCurrentNode)
+	parent := models.BuildBranchNode(childrenOfCurrentNode)
 	return parent
 }
 
 func getChildFromAvailableChildren(availableChildren *[]models.TreeNode) *models.TreeNode {
-	if len(*availableChildren) == 0 {
-		fmt.Println()
-	}
-
 	oneChild := (*availableChildren)[0]
 	*availableChildren = removeFromNodeLevelAtIndex(*availableChildren, 0)
 	return &oneChild
-}
-
-func getRandomNodeFromLevel(nodesAtLevel []models.TreeNode) (*models.TreeNode, int) {
-	indx := rand.Intn(len(nodesAtLevel))
-	return &nodesAtLevel[indx], indx
 }
 
 func removeFromNodeLevelAtIndex(level []models.TreeNode, indx int) []models.TreeNode {

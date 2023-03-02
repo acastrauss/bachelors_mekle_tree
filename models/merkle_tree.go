@@ -1,48 +1,21 @@
 package models
 
 import (
-	"errors"
-	"math"
 	"math/rand"
 
 	"github.com/wealdtech/go-merkletree/keccak256"
 )
 
-type TreeParams struct {
-	TreeIndex        uint
-	PowerOfTreeIndex uint
-}
-
-func GetNumberOfLeafNodes(treeParams TreeParams) int {
-	return int(math.Pow(float64(treeParams.TreeIndex), float64(treeParams.PowerOfTreeIndex)))
-}
-
-func GetTotalNumberOfNodes(treeParams TreeParams) int {
-	return int(
-		(math.Pow(float64(treeParams.TreeIndex), float64(treeParams.PowerOfTreeIndex+1)) - 1) / (float64(treeParams.TreeIndex) - 1))
-}
-
 type Hash struct {
 	Value []byte
 }
 
-func AreHashesEqual(h1 Hash, h2 Hash) bool {
-	if (h1.Value == nil && h2.Value != nil) || (h1.Value != nil && h2.Value == nil) {
-		return false
-	}
-	if h1.Value == nil && h2.Value == nil {
-		return true
-	}
-	if len(h1.Value) != len(h2.Value) {
-		return false
-	}
+type NodeData struct {
+	Data string
+}
 
-	for i := 0; i < len(h1.Value) && i < len(h2.Value); i++ {
-		if h1.Value[i] != h2.Value[i] {
-			return false
-		}
-	}
-	return true
+func (nData *NodeData) GetBytes() []byte {
+	return []byte(nData.Data)
 }
 
 type TreeNode struct {
@@ -50,54 +23,63 @@ type TreeNode struct {
 	Children []*TreeNode
 	NodeHash Hash
 	NodeId   int
+	Data     NodeData
 }
 
 var TreeNodeId = 0
 
-var keccakHasher = keccak256.New()
+var KeccakHasher = keccak256.New()
 
 const STRING_VALUE_LENGTH = 50
 const KECCAK_SHA_LENGTH = 32
 
-func BuildMerkleNode(childrenHashes []Hash, stringValueLength int) TreeNode {
-	var nodeHash Hash
-	isLeaf := len(childrenHashes) == 0
-	if isLeaf {
-		// leaf node
-		nodeHash = Hash{Value: keccakHasher.Hash([]byte(RandStringRunes(stringValueLength)))}
-	} else {
-		nodeHash = GenParentHashFromChildrenHashes(childrenHashes)
-
-	}
+func BuildLeafNode() TreeNode {
 	TreeNodeId += 1
+	leafData := NodeData{
+		Data: RandStringRunes(STRING_VALUE_LENGTH),
+	}
 
 	return TreeNode{
 		Parent:   nil,
-		NodeHash: nodeHash,
-		NodeId:   TreeNodeId,
+		Children: make([]*TreeNode, 0),
+		NodeHash: Hash{
+			Value: KeccakHasher.Hash([]byte(leafData.GetBytes())),
+		},
+		NodeId: TreeNodeId,
+		Data:   leafData,
 	}
 }
 
-func GenParentHashFromChildrenHashes(childrenHashes []Hash) Hash {
-	concatenatedhashes := make([]byte, 0)
-	for _, ch := range childrenHashes {
-		concatenatedhashes = append(concatenatedhashes, ch.Value...)
+func BuildBranchNode(children []*TreeNode) TreeNode {
+	TreeNodeId += 1
+	node := TreeNode{
+		Parent: nil,
+		NodeId: TreeNodeId,
+		Data: NodeData{
+			Data: "",
+		},
 	}
 
-	return Hash{Value: keccakHasher.Hash(concatenatedhashes)}
+	node.AssignChildrenToParent(children)
+	return node
 }
 
-func AssignParentToChildren(parent *TreeNode, children []*TreeNode) error {
-	if parent == nil {
-		return errors.New("parent is nil")
-	}
-
+func (tn *TreeNode) AssignChildrenToParent(children []*TreeNode) {
 	for _, c := range children {
-		c.Parent = parent
+		c.Parent = tn
 	}
-	parent.Children = children
+	tn.Children = children
+	tn.NodeHash = GetParentHashFromChildren(children)
+}
 
-	return nil
+func GetParentHashFromChildren(children []*TreeNode) Hash {
+	concatenatedhashes := make([]byte, 0)
+	for _, ch := range children {
+		concatenatedhashes = append(concatenatedhashes, ch.NodeHash.Value...)
+	}
+	return Hash{
+		Value: KeccakHasher.Hash(concatenatedhashes),
+	}
 }
 
 func GenRandomTreeNode(r *rand.Rand) *TreeNode {

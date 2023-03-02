@@ -2,6 +2,7 @@ package validators
 
 import (
 	"models"
+	"reflect"
 )
 
 func IsMerkleTreeValid(tree *models.MerkleTree) bool {
@@ -13,14 +14,11 @@ func compareParentHashToChildrenHashes(parent *models.TreeNode) bool {
 		return true
 	} else {
 		retval := true
-		childrenHashes := make([]models.Hash, 0)
 		for _, c := range parent.Children {
-			childrenHashes = append(childrenHashes, c.NodeHash)
 			retval = retval && compareParentHashToChildrenHashes(c)
 		}
-
-		expectedHash := models.GenParentHashFromChildrenHashes(childrenHashes)
-		retval = retval && models.AreHashesEqual(expectedHash, parent.NodeHash)
+		excpectedHash := models.GetParentHashFromChildren(parent.Children)
+		retval = retval && reflect.DeepEqual(excpectedHash.Value, parent.NodeHash.Value)
 		return retval
 	}
 }
@@ -34,7 +32,7 @@ func InvalidateTree(tree *models.MerkleTree) {
 }
 
 func AreMerkleTreesNodesDifferent(tree *models.MerkleTree, treeParams models.TreeParams) bool {
-	expectedNofNodes := models.GetTotalNumberOfNodes(treeParams)
+	expectedNofNodes := treeParams.GetTotalNumberOfNodes()
 	idsInTree := getSubtreeIds(tree.Root)
 	idsInTree = removeDuplicates(idsInTree)
 
