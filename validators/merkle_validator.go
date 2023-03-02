@@ -23,12 +23,13 @@ func compareParentHashToChildrenHashes(parent *models.TreeNode) bool {
 	}
 }
 
-func InvalidateTree(tree *models.MerkleTree) {
+func InvalidateTree(tree *models.MerkleTree, invalidData models.NodeData) {
 	currentNode := tree.Root
 	for len(currentNode.Children) > 0 {
 		currentNode = currentNode.Children[0]
 	}
-	currentNode.NodeHash = models.Hash{Value: make([]byte, models.KECCAK_SHA_LENGTH)}
+	currentNode.Data = invalidData
+	currentNode.NodeHash = models.Hash{Value: models.KeccakHasher.Hash(invalidData.GetBytes())}
 }
 
 func AreMerkleTreesNodesDifferent(tree *models.MerkleTree, treeParams models.TreeParams) bool {

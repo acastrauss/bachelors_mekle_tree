@@ -26,14 +26,6 @@ func main() {
 	tree := generators.GenerateMerkleTree(treeParams)
 	fmt.Printf("Root hash:%v\n", tree.RootHash)
 	fmt.Printf("Is tree valid :%v\n", validators.IsMerkleTreeValid(&tree))
-	invalidTreeCopied, err := deepcopy.Anything(tree)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		invalidTree := invalidTreeCopied.(models.MerkleTree)
-		validators.InvalidateTree(&invalidTree)
-		fmt.Printf("Is tree valid :%v\n", validators.IsMerkleTreeValid(&invalidTree))
-	}
 
 	fmt.Printf("Are all nodes different: %v\n", validators.AreMerkleTreesNodesDifferent(&tree, treeParams))
 	dataFromOneLeaf := validators.GetDataFromOneLeaf(&tree)
@@ -43,12 +35,23 @@ func main() {
 
 	fmt.Printf("Is data:'%s' valid in tree:%v\n", dataFromOneLeaf.Data, validators.IsDataValidWithinTree(dataFromOneLeaf, tree))
 
-	dataNotInTree := models.NodeData{
-		Data: "some data not in tree",
-	}
-	fmt.Printf("Searching nodes for data:'%s'\n", dataNotInTree.Data)
-	leafWithGivenData = validators.GetLeafThatHasData(dataNotInTree, &tree)
-	PrintLeafFound(leafWithGivenData)
+	invalidTreeCopied, err := deepcopy.Anything(tree)
 
-	fmt.Printf("Is data:'%s' valid in tree:%v\n", dataNotInTree.Data, validators.IsDataValidWithinTree(dataNotInTree, tree))
+	if err != nil {
+		log.Fatal(err)
+	} else {
+
+		dataNotInTree := models.NodeData{
+			Data: "some data not in tree",
+		}
+		invalidTree := invalidTreeCopied.(models.MerkleTree)
+		validators.InvalidateTree(&invalidTree, dataNotInTree)
+		fmt.Printf("Is tree valid :%v\n", validators.IsMerkleTreeValid(&invalidTree))
+
+		fmt.Printf("Searching nodes for data:'%s'\n", dataNotInTree.Data)
+		leafWithGivenData = validators.GetLeafThatHasData(dataNotInTree, &invalidTree)
+		PrintLeafFound(leafWithGivenData)
+		fmt.Printf("Is data:'%s' valid in tree:%v\n", dataNotInTree.Data, validators.IsDataValidWithinTree(dataNotInTree, invalidTree))
+	}
+
 }
